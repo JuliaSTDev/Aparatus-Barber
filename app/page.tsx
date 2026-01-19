@@ -5,6 +5,7 @@ import banner from "../public/banner.png";
 import BookingItem from "./_components/Booking-items";
 import { prisma } from "@/lib/prisma";
 import BarbershopItem from "./_components/Barbershop-items";
+import Footer from "./_components/Footer";
 
 const Home = async() => {
   const recomendedBarbershop = await prisma.barbershop.findMany({
@@ -56,6 +57,7 @@ const Home = async() => {
         ))}
         </div>
       </div>
+      <Footer />
    </main>
   );
 }
