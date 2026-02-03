@@ -1,14 +1,14 @@
 const Footer = () => {
-    return(
-        <footer className="p-7 bg-muted">
-            <p className="text-foreground text-xs font-semibold">
-                &copy: 2025 Aparatus
-            </p>
-            <p className="text-muted-foreground text-xs"> 
-                todos os direitos reservados
-            </p>
-        </footer>
-    );
+  return (
+    <footer className="p-6 bg-muted/80 mt-auto">
+      <p className="text-foreground text-xs font-semibold">
+        © 2025 Copyright Aparatus
+      </p>
+      <p className="text-muted-foreground text-xs mt-0.5">
+        Todos os direitos reservados.
+      </p>
+    </footer>
+  );
 };
 
 export default Footer;
