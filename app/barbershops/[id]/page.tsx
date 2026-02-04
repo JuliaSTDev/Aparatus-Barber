@@ -2,132 +2,155 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import Footer from "@/app/_components/Footer";
-import CopyPhoneButton from "@/app/_components/CopyPhoneButton";
-import ServiceItem from "@/app/_components/ServiceItem";
-import { Avatar, AvatarFallback, AvatarImage } from "@/app/_components/ui/avatar";
-import { Separator } from "@/app/_components/separator";
-import { ChevronLeft, Square } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
+import { Button } from "@/app/_components/ui/button";
+import { Separator } from "@/app/_components/ui/separator";
+import  ServiceItem  from "@/app/_components/ServiceItem";
+// import { PhoneItem } from "@/app/_components/phone-item";
 
-interface BarbershopPageProps {
-  params: Promise<{ id: string }>;
-}
-
-export default async function BarbershopPage({ params }: BarbershopPageProps) {
-  const { id } = await params;
+const BarbershopPage = async (props: PageProps<"/barbershops/[id]">) => {
+  const { id } = await props.params;
   const barbershop = await prisma.barbershop.findUnique({
-    where: { id },
-    include: { services: true },
+    where: {
+      id,
+    },
+    include: {
+      services: true,
+    },
   });
 
   if (!barbershop) {
-    return notFound();
+    notFound();
   }
 
-  const phones = barbershop.phones ?? [];
-  const initial = barbershop.name.charAt(0).toUpperCase();
-
   return (
-    <main className="min-h-screen bg-muted">
-      {/* Banner: apenas imagem e botão Voltar (sem header) */}
-      <div className="relative w-full aspect-[16/9] overflow-hidden bg-muted">
-        <Link
-          href="/"
-          className="absolute left-4 top-4 z-10 flex size-10 items-center justify-center rounded-full bg-card text-foreground shadow-sm hover:bg-card/90"
-          aria-label="Voltar"
-        >
-          <ChevronLeft className="size-5" />
-        </Link>
-        <Image
-          src={barbershop.imageUrl}
-          alt={barbershop.name}
-          fill
-          sizes="100vw"
-          className="object-cover object-center"
-          priority
-        />
-      </div>
+    <div className="flex size-full flex-col items-start overflow-clip">
+      {/* Hero Section com Imagem */}
+      <div className="relative h-[297px] w-full">
+        <div className="absolute top-0 left-0 h-full w-full">
+          <Image
+            src={barbershop.imageUrl}
+            alt={barbershop.name}
+            fill
+            className="object-cover"
+          />
+        </div>
 
-      {/* Card branco: 100% da largura, sem margin aos lados, sobrepõe o banner */}
-      <div className="-mt-12 relative z-10 w-full">
-        <div className="w-full rounded-t-2xl bg-card shadow-sm overflow-hidden">
-          {/* Faixa superior: foto da barbearia do banco, nome, endereço */}
-          <div className="px-5 py-4 flex items-center gap-3">
-            <Avatar className="size-12 shrink-0 rounded-full bg-muted-foreground overflow-hidden">
-              <AvatarImage src={barbershop.imageUrl} alt={barbershop.name} />
-              <AvatarFallback className="bg-muted-foreground text-primary-foreground text-lg font-semibold">
-                {initial}
-              </AvatarFallback>
-            </Avatar>
-            <div className="min-w-0 flex-1">
-              <h1 className="text-xl font-bold text-foreground truncate">
-                {barbershop.name}
-              </h1>
-              {barbershop.address && (
-                <p className="text-muted-foreground text-sm truncate">
-                  {barbershop.address}
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* Linha de separação cinza entre perfil e Sobre nós (espaçamento Figma) */}
-          <div className="px-5">
-            <Separator className="my-5" />
-          </div>
-
-          {/* Conteúdo: Sobre nós, Serviços, Contato */}
-          <div className="px-5 pb-6 space-y-6">
-            {/* SOBRE NÓS - fonte do tema (Inter) como no Figma */}
-            <section className="space-y-2 font-sans">
-              <h2 className="text-xs font-bold text-foreground uppercase tracking-wide font-sans">
-                Sobre nós
-              </h2>
-              <p className="text-foreground text-sm leading-relaxed font-sans">
-                {barbershop.description ??
-                  "Bem-vindo à nossa barbearia, onde tradição encontra estilo. Nossa equipe de mestres barbeiros transforma cortes de cabelo e barbas em obras de arte. Em um ambiente acolhedor, promovemos confiança, estilo e uma comunidade unida."}
-              </p>
-            </section>
-
-            {/* SERVIÇOS */}
-            {barbershop.services.length > 0 && (
-              <section className="space-y-3">
-                <h2 className="text-xs font-bold text-foreground uppercase tracking-wide">
-                  Serviços
-                </h2>
-                <div className="flex flex-col gap-3">
-                  {barbershop.services.map((service) => (
-                    <ServiceItem key={service.id} service={service} />
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {/* CONTATO */}
-            {phones.length > 0 && (
-              <section className="space-y-3">
-                <h2 className="text-xs font-bold text-foreground uppercase tracking-wide">
-                  Contato
-                </h2>
-                <div className="flex flex-col gap-3">
-                  {phones.map((phone) => (
-                    <div
-                      key={phone}
-                      className="flex flex-wrap items-center gap-2"
-                    >
-                      <Square className="size-4 shrink-0 text-muted-foreground stroke-[1.5]" />
-                      <span className="text-foreground text-sm">{phone}</span>
-                      <CopyPhoneButton phone={phone} />
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
-          </div>
+        {/* Botão Voltar */}
+        <div className="absolute top-0 left-0 flex w-full items-baseline gap-[91px] px-5 pt-6 pb-0">
+          <Button
+            size="icon"
+            variant="secondary"
+            className="overflow-clip rounded-full"
+            asChild
+          >
+            <Link href="/">
+              <ChevronLeft className="size-5" />
+            </Link>
+          </Button>
         </div>
       </div>
 
-      <Footer />
-    </main>
+      {/* Container Principal */}
+      <div className="bg-background w-full flex-1 rounded-tl-3xl rounded-tr-3xl">
+        {/* Informações da Barbearia */}
+        <div className="flex w-full items-center gap-1.5 px-5 pt-6 pb-0">
+          <div className="flex flex-col items-start gap-1">
+            <div className="flex items-start gap-1.5">
+              <div className="relative size-[30px] shrink-0 overflow-hidden rounded-full">
+                <Image
+                  src={barbershop.imageUrl}
+                  alt={barbershop.name}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <p className="text-foreground text-xl font-bold">
+                {barbershop.name}
+              </p>
+            </div>
+            <div className="flex flex-col items-start gap-2">
+              <div className="flex items-center gap-2">
+                <p className="text-muted-foreground text-sm">
+                  {barbershop.address}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="px-0 py-6">
+          <Separator />
+        </div>
+
+        {/* Sobre Nós */}
+        <div className="flex w-full flex-col items-start gap-3 px-5 py-0">
+          <div className="flex items-center justify-center gap-2.5">
+            <p className="text-foreground text-xs font-bold uppercase">
+              SOBRE NÓS
+            </p>
+          </div>
+          <p className="text-foreground w-full text-sm">
+            {barbershop.description}
+          </p>
+        </div>
+
+        {/* Divider */}
+        <div className="px-0 py-6">
+          <Separator />
+        </div>
+
+        {/* Serviços */}
+        <div className="flex w-full flex-col items-start gap-3 px-5 py-0">
+          <div className="flex items-center justify-center gap-2.5">
+            <p className="text-foreground text-xs font-bold uppercase">
+              SERVIÇOS
+            </p>
+          </div>
+          <div className="flex w-full flex-col gap-3">
+            {barbershop.services.map((service) => (
+              <ServiceItem
+                key={service.id}
+                service={{ ...service, barbershop }}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Divider */}
+        <div className="px-0 py-6">
+          <Separator />
+        </div>
+
+        {/* Contato */}
+        <div className="flex w-full flex-col items-start gap-3 px-5 py-0">
+          <div className="flex items-center justify-center gap-2.5">
+            <p className="text-foreground text-xs font-bold uppercase">
+              CONTATO
+            </p>
+          </div>
+          {/* <div className="flex w-full flex-col gap-3">
+            {barbershop.phones.map((phone, index) => (
+            <PhoneItem key={index} phone={phone} />
+            ))}
+          </div> */}
+        </div>
+
+        {/* Footer */}
+        <div className="flex w-full flex-col items-center gap-2.5 px-0 pt-[60px] pb-0">
+          <div className="bg-secondary flex w-full flex-col items-start justify-center gap-1.5 px-[30px] py-8 text-xs leading-none">
+            <p className="text-foreground font-semibold">
+              © 2025 Copyright Aparatus
+            </p>
+            <p className="text-muted-foreground font-normal">
+              Todos os direitos reservados.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
   );
-}
+};
+
+export default BarbershopPage;
