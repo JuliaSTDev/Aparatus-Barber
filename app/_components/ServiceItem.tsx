@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { Button } from "./ui/button";
-import type { BarbershopService, Barbershop  } from "../generated/prisma/client";
+import type { BarbershopService, Barbershop } from "../generated/prisma/client";
 import {
   Sheet,
   SheetContent,
@@ -14,7 +14,9 @@ import { Calendar } from "./ui/calendar";
 import { Separator } from "./ui/separator";
 import { useState } from "react";
 import { ptBR } from "date-fns/locale";
-
+import { useAction } from "next-safe-action/hooks";
+import { createBooking } from "../_actions/create-booking";
+import { toast } from "sonner";
 
 interface ServiceItemProps {
   service: BarbershopService & {
@@ -47,13 +49,14 @@ const TIME_SLOTS = [
 export default function ServiceItem({ service }: ServiceItemProps) {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [selectedTime, setSelectedTime] = useState<string | undefined>();
+  const { executeAsync, isPending } = useAction(createBooking);
+  const [sheetIsOpen, setSheetIsOpen] = useState(false);
 
   const priceInReais = (service.priceInCents / 100).toLocaleString("pt-BR", {
     style: "currency",
     currency: "BRL",
   });
 
-  
   const priceInReaisInteger = Math.floor(service.priceInCents / 100);
 
   const formattedDate = selectedDate
@@ -68,9 +71,34 @@ export default function ServiceItem({ service }: ServiceItemProps) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  
+  const handleConfirm = async () => {
+    if (!selectedDate || !selectedTime) {
+      return;
+    }
+
+    const timeSplitted = selectedTime.split(":");
+    const hours = timeSplitted[0];
+    const minutes = timeSplitted[1];
+    const date = new Date(selectedDate);
+    date.setHours(Number(hours), Number(minutes));
+
+    const results = await executeAsync({
+      serviceId: service.id,
+      date,
+    });
+    if (results.serverError || results.validationErrors) {
+      toast.error(results.validationErrors?._errors?.[0]);
+      return;
+    }
+
+    toast.success("agendamento criado com sucesso");
+    setSelectedDate(undefined);
+    setSelectedTime(undefined);
+    setSheetIsOpen(false);
+  };
+
   return (
-    <Sheet>
+    <Sheet open={sheetIsOpen} onOpenChange={setSheetIsOpen}>
       <div className="border-border bg-card flex items-center justify-center gap-3 rounded-2xl border border-solid p-3">
         <div className="relative size-[110px] shrink-0 overflow-hidden rounded-[10px]">
           <Image
@@ -91,8 +119,6 @@ export default function ServiceItem({ service }: ServiceItemProps) {
                 {service.description}
               </p>
             </div>
-
-
 
             <div className="flex w-full items-center justify-between">
               <p className="text-card-foreground text-sm leading-[1.4] font-bold whitespace-pre">
@@ -175,7 +201,8 @@ export default function ServiceItem({ service }: ServiceItemProps) {
               <div className="px-5 pb-6">
                 <Button
                   className="w-full rounded-full"
-                  disabled={isConfirmDisabled}
+                  disabled={isConfirmDisabled || isPending}
+                  onClick={handleConfirm}
                 >
                   Confirmar
                 </Button>
