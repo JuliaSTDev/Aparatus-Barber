@@ -30,16 +30,7 @@ const Home = async() => {
           sizes="100vw"
           className="h-auto w-full"
         />
-        <PageSection>
-          <PageSectionTitle>Agendamentos</PageSectionTitle>
-            <BookingItem 
-              serviceName="Corte de cabelo"
-              barbershopName="Barbearia do joão"
-              barbershopImageUrl="https://utfs.io/f/178da6b6-6f9a-424a-be9d-a2feb476eb36-16t.png"
-              date={new Date()}
-            />  
-        </PageSection>
-
+    
         <PageSection>
         <PageSectionTitle>Recomendados</PageSectionTitle>
           <PageSectionScroller>

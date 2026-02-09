@@ -42,7 +42,7 @@ export const getDateAvalibleTimeSlots = actionClient
     const session = await auth.api.getSession({
         headers: await headers(),
     });
-    if(session?.user) {
+    if(!session?.user) {
         returnValidationErrors(inputSchema, {
             _errors: ["unauthorized"],
         });
