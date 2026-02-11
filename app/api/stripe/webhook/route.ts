@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 
 export const POST = async (request: Request) => {
+  console.log("🔥 WEBHOOK FOI CHAMADO");
   if (!process.env.STRIPE_SECRET_KEY || !process.env.STRIPE_WEBHOOK_SECRET) {
     return NextResponse.error();
   }
