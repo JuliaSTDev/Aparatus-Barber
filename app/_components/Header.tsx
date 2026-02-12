@@ -1,11 +1,8 @@
 "use client";
 
-
 import Image from "next/image";
-import Link from "next/link";
 import { Button } from "./ui/button";
-import { LogInIcon, LogOutIcon, MenuIcon } from "lucide-react";
-import { authClient } from "@/lib/auth-client";
+import { MenuIcon, MessageCircleIcon } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -14,22 +11,19 @@ import {
   SheetTrigger,
 } from "./ui/sheet";
 import SidebarMenu from "./Sidebar-menu";
+import Link from "next/link";
 
 const Header = () => {
-  const {data: session} = authClient.useSession()
-  const handleLogin = async () => {
-    await authClient.signIn.social({
-      provider: "google",
-    })
-    console.log("Login realizado com sucesso");
-  }
   return (
-    <header className="flex items-center justify-between px-5 py-6 bg-background">
-      <Link href="/">
-        <Image src="/LogoAparatus.svg" alt="logo da aparatus" width={100} height={26.09} />
-      </Link>
+    <header className="flex items-center justify-between bg-white px-5 py-6">
+      <Image src="/logo.svg" alt="Aparatus" width={100} height={26.09} />
       <div className="flex items-center gap-2">
-      <Sheet>
+        <Button variant="outline" size="icon" asChild>
+          <Link href="/chat">
+            <MessageCircleIcon />
+          </Link>
+        </Button>
+        <Sheet>
           <SheetTrigger asChild>
             <Button variant="outline" size="icon">
               <MenuIcon />
@@ -42,9 +36,7 @@ const Header = () => {
             <SidebarMenu />
           </SheetContent>
         </Sheet>
-
       </div>
-      
     </header>
   );
 };
